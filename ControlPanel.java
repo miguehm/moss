@@ -9,8 +9,6 @@ public class ControlPanel extends Frame
   Button resetButton = new Button("reset");
   Button exitButton = new Button("exit");
 
-  Button[] buttons = new Button[64];
-
   Button b0 = new Button("page " + (0));
   Button b1 = new Button("page " + (1));
   Button b2 = new Button("page " + (2));
@@ -176,22 +174,22 @@ public class ControlPanel extends Frame
 
     runButton.setForeground( Color.blue );
     runButton.setBackground( Color.lightGray );
-    runButton.reshape( 0,25,70,15 );
+    runButton.reshape( 0,(33+2)*15+25,70,15 );
     add( runButton );    
 
     stepButton.setForeground( Color.blue );
     stepButton.setBackground( Color.lightGray );
-    stepButton.reshape( 70,25,70,15 );
+    stepButton.reshape( 70,(33+2)*15+25,70,15 );
     add( stepButton );
 
     resetButton.setForeground( Color.blue );
     resetButton.setBackground( Color.lightGray );
-    resetButton.reshape( 140,25,70,15 );
+    resetButton.reshape( 140,(33+2)*15+25,70,15 );
     add( resetButton );
 
     exitButton.setForeground( Color.blue );
     exitButton.setBackground( Color.lightGray );
-    exitButton.reshape( 210,25,70,15 );
+    exitButton.reshape( 210,(33+2)*15+25,70,15 );
     add( exitButton );
 
     b0.reshape(0, (0+2)*15+25, 70, 15);
