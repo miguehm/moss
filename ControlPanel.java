@@ -87,7 +87,7 @@ public class ControlPanel extends Frame
   Label lowValueLabel = new Label("0" , Label.LEFT) ;
   Label highValueLabel = new Label("0" , Label.LEFT) ;
   // physical column
-  Label l0 = new Label(null, Label.LEFT);
+  Label l0 = new Label(null, Label.CENTER);
   Label l1 = new Label(null, Label.CENTER);
   Label l2 = new Label(null, Label.CENTER);
   Label l3 = new Label(null, Label.CENTER);
@@ -620,163 +620,197 @@ public class ControlPanel extends Frame
     add(highLabel);
 
     l0.reshape( 70, (2)*15+25, 60, 15 );
-    l0.setForeground( Color.red );
-    l0.setFont( new Font( "Courier", 0, 10 ) );   
+    l0.setForeground( Color.black );
+    l0.setBackground(Color.green);
+    l0.setFont( new Font( "Courier", 0, 10 ) );
     add( l0 );
 
     l1.reshape( 70, (3)*15+25, 60, 15 );
     l1.setForeground( Color.red );
-    l1.setFont( new Font( "Courier", 0, 10 ) );   
+    l1.setForeground( Color.black );
+    l1.setBackground(Color.green);
+    l1.setFont( new Font( "Courier", 0, 10 ) );
     add( l1 );
 
     l2.reshape( 70, (4)*15+25, 60, 15 );
     l2.setForeground( Color.red );
-    l2.setFont( new Font( "Courier", 0, 10 ) );   
+    l2.setForeground( Color.black );
+    l2.setBackground(Color.green);
+    l2.setFont( new Font( "Courier", 0, 10 ) );
     add( l2 );
 
     l3.reshape( 70, (5)*15+25, 60, 15 );
-    l3.setForeground( Color.red );
-    l3.setFont( new Font( "Courier", 0, 10 ) );   
+    l3.setForeground( Color.black );
+    l3.setBackground(Color.green);
+    l3.setFont( new Font( "Courier", 0, 10 ) );
     add( l3 );
 
     l4.reshape( 70, (6)*15+25, 60, 15 );
-    l4.setForeground( Color.red );
-    l4.setFont( new Font( "Courier", 0, 10 ) );   
+    l4.setForeground( Color.black );
+    l4.setBackground(Color.green);
+    l4.setFont( new Font( "Courier", 0, 10 ) );
     add( l4 );
 
     l5.reshape( 70, (7)*15+25, 60, 15 );
-    l5.setForeground( Color.red );
-    l5.setFont( new Font( "Courier", 0, 10 ) );   
+    l5.setForeground( Color.black );
+    l5.setBackground(Color.green);
+    l5.setFont( new Font( "Courier", 0, 10 ) );
     add( l5 );
 
     l6.reshape( 70, (8)*15+25, 60, 15 );
-    l6.setForeground( Color.red );
-    l6.setFont( new Font( "Courier", 0, 10 ) );   
+    l6.setForeground( Color.black );
+    l6.setBackground(Color.green);
+    l6.setFont( new Font( "Courier", 0, 10 ) );
     add( l6 );
 
     l7.reshape( 70, (9)*15+25, 60, 15 );
-    l7.setForeground( Color.red );
-    l7.setFont( new Font( "Courier", 0, 10 ) );   
+    l7.setForeground( Color.black );
+    l7.setBackground(Color.green);
+    l7.setFont( new Font( "Courier", 0, 10 ) );
     add( l7 );
 
     l8.reshape( 70, (10)*15+25, 60, 15 );
-    l8.setForeground( Color.red );
-    l8.setFont( new Font( "Courier", 0, 10 ) );   
+    l8.setForeground( Color.black );
+    l8.setBackground(Color.green);
+    l8.setFont( new Font( "Courier", 0, 10 ) );
     add( l8 );
 
     l9.reshape( 70, (11)*15+25, 60, 15 );
-    l9.setForeground( Color.red );
-    l9.setFont( new Font( "Courier", 0, 10 ) );   
+    l9.setForeground( Color.black );
+    l9.setBackground(Color.orange);
+    l9.setFont( new Font( "Courier", 0, 10 ) );
     add( l9 );
 
     l10.reshape( 70, (12)*15+25, 60, 15 );
-    l10.setForeground( Color.red );
-    l10.setFont( new Font( "Courier", 0, 10 ) );   
+    l10.setForeground( Color.black );
+    l10.setBackground(Color.orange);
+    l10.setFont( new Font( "Courier", 0, 10 ) );
     add( l10 );
 
     l11.reshape( 70, (13)*15+25, 60, 15 );
-    l11.setForeground( Color.red );
-    l11.setFont( new Font( "Courier", 0, 10 ) );   
+    l11.setForeground( Color.black );
+    l11.setBackground(Color.orange);
+    l11.setFont( new Font( "Courier", 0, 10 ) );
     add( l11 );
 
     l12.reshape( 70, (14)*15+25, 60, 15 );
-    l12.setForeground( Color.red );
-    l12.setFont( new Font( "Courier", 0, 10 ) );   
+    l12.setForeground( Color.black );
+    l12.setBackground(Color.orange);
+    l12.setFont( new Font( "Courier", 0, 10 ) );
     add( l12 );
 
     l13.reshape( 70, (15)*15+25, 60, 15 );
-    l13.setForeground( Color.red );
-    l13.setFont( new Font( "Courier", 0, 10 ) );   
+    l13.setForeground( Color.black );
+    l13.setBackground(Color.orange);
+    l13.setFont( new Font( "Courier", 0, 10 ) );
     add( l13 );
 
     l14.reshape( 70, (16)*15+25, 60, 15 );
-    l14.setForeground( Color.red );
-    l14.setFont( new Font( "Courier", 0, 10 ) );   
+    l14.setForeground( Color.black );
+    l14.setBackground(Color.pink);
+    l14.setFont( new Font( "Courier", 0, 10 ) );
     add( l14 );
 
     l15.reshape( 70, (17)*15+25, 60, 15 );
-    l15.setForeground( Color.red );
-    l15.setFont( new Font( "Courier", 0, 10 ) );   
+    l15.setForeground( Color.black );
+    l15.setBackground(Color.pink);
+    l15.setFont( new Font( "Courier", 0, 10 ) );
     add( l15 );
 
     l16.reshape( 70, (18)*15+25, 60, 15 );
-    l16.setForeground( Color.red );
-    l16.setFont( new Font( "Courier", 0, 10 ) );   
+    l16.setForeground( Color.black );
+    l16.setBackground(Color.pink);
+    l16.setFont( new Font( "Courier", 0, 10 ) );
     add( l16 );
 
     l17.reshape( 70, (19)*15+25, 60, 15 );
-    l17.setForeground( Color.red );
-    l17.setFont( new Font( "Courier", 0, 10 ) );   
+    l17.setForeground( Color.black );
+    l17.setBackground(Color.pink);
+    l17.setFont( new Font( "Courier", 0, 10 ) );
     add( l17 );
 
     l18.reshape( 70, (20)*15+25, 60, 15 );
-    l18.setForeground( Color.red );
-    l18.setFont( new Font( "Courier", 0, 10 ) );   
+    l18.setForeground( Color.black );
+    l18.setBackground(Color.pink);
+    l18.setFont( new Font( "Courier", 0, 10 ) );
     add( l18 );
 
     l19.reshape( 70, (21)*15+25, 60, 15 );
-    l19.setForeground( Color.red );
-    l19.setFont( new Font( "Courier", 0, 10 ) );   
+    l19.setForeground( Color.black );
+    l19.setBackground(Color.pink);
+    l19.setFont( new Font( "Courier", 0, 10 ) );
     add( l19 );
 
     l20.reshape( 70, (22)*15+25, 60, 15 );
-    l20.setForeground( Color.red );
-    l20.setFont( new Font( "Courier", 0, 10 ) );   
+    l20.setForeground( Color.black );
+    l20.setBackground(Color.pink);
+    l20.setFont( new Font( "Courier", 0, 10 ) );
     add( l20 );
 
     l21.reshape( 70, (23)*15+25, 60, 15 );
-    l21.setForeground( Color.red );
-    l21.setFont( new Font( "Courier", 0, 10 ) );   
+    l21.setForeground( Color.black );
+    l21.setBackground(Color.pink);
+    l21.setFont( new Font( "Courier", 0, 10 ) );
     add( l21 );
 
     l22.reshape( 70, (24)*15+25, 60, 15 );
-    l22.setForeground( Color.red );
-    l22.setFont( new Font( "Courier", 0, 10 ) );   
+    l22.setForeground( Color.black );
+    l22.setBackground(Color.pink);
+    l22.setFont( new Font( "Courier", 0, 10 ) );
     add( l22 );
 
     l23.reshape( 70, (25)*15+25, 60, 15 );
-    l23.setForeground( Color.red );
-    l23.setFont( new Font( "Courier", 0, 10 ) );   
+    l23.setForeground( Color.black );
+    l23.setBackground(Color.cyan);
+    l23.setFont( new Font( "Courier", 0, 10 ) );
     add( l23 );
 
     l24.reshape( 70, (26)*15+25, 60, 15 );
-    l24.setForeground( Color.red );
-    l24.setFont( new Font( "Courier", 0, 10 ) );   
+    l24.setForeground( Color.black );
+    l24.setBackground(Color.cyan);
+    l24.setFont( new Font( "Courier", 0, 10 ) );
     add( l24 );
 
     l25.reshape( 70, (27)*15+25, 60, 15 );
-    l25.setForeground( Color.red );
-    l25.setFont( new Font( "Courier", 0, 10 ) );   
+    l25.setForeground( Color.black );
+    l25.setBackground(Color.cyan);
+    l25.setFont( new Font( "Courier", 0, 10 ) );
     add( l25 );
 
     l26.reshape( 70, (28)*15+25, 60, 15 );
-    l26.setForeground( Color.red );
-    l26.setFont( new Font( "Courier", 0, 10 ) );   
+    l26.setForeground( Color.black );
+    l26.setBackground(Color.cyan);
+    l26.setFont( new Font( "Courier", 0, 10 ) );
     add( l26 );
 
     l27.reshape( 70, (29)*15+25, 60, 15 );
-    l27.setForeground( Color.red );
-    l27.setFont( new Font( "Courier", 0, 10 ) );   
+    l27.setForeground( Color.black );
+    l27.setBackground(Color.cyan);
+    l27.setFont( new Font( "Courier", 0, 10 ) );
     add( l27 );
 
     l28.reshape( 70, (30)*15+25, 60, 15 );
-    l28.setForeground( Color.red );
-    l28.setFont( new Font( "Courier", 0, 10 ) );   
+    l28.setForeground( Color.black );
+    l28.setBackground(Color.cyan);
+    l28.setFont( new Font( "Courier", 0, 10 ) );
     add( l28 );
 
     l29.reshape( 70, (31)*15+25, 60, 15 );
-    l29.setForeground( Color.red );
-    l29.setFont( new Font( "Courier", 0, 10 ) );   
+    l29.setForeground( Color.white );
+    l29.setBackground(Color.magenta);
+    l29.setFont( new Font( "Courier", 0, 10 ) );
     add( l29 );
 
     l30.reshape( 70, (32)*15+25, 60, 15 );
-    l30.setForeground( Color.red );
-    l30.setFont( new Font( "Courier", 0, 10 ) );   
+    l30.setForeground( Color.white );
+    l30.setBackground(Color.magenta);
+    l30.setFont( new Font( "Courier", 0, 10 ) );
     add( l30 );
 
     l31.reshape( 70, (33)*15+25, 60, 15 );
-    l31.setForeground( Color.red );
-    l31.setFont( new Font( "Courier", 0, 10 ) );   
+    l31.setForeground( Color.white );
+    l31.setBackground(Color.magenta);
+    l31.setFont( new Font( "Courier", 0, 10 ) );
     add( l31 );
 
     l32.reshape( 210, (2)*15+25, 60, 15 );
