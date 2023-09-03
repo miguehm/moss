@@ -25,6 +25,9 @@ public class Kernel extends Thread
   public long block = (int) Math.pow(2,12);
   public static byte addressradix = 10;
 
+  public long addr1 = 0;
+  public long addr2 = 0;
+
   public void init( String commands , String config )  
   {
     File f = new File( commands );
@@ -225,20 +228,91 @@ public class Kernel extends Thread
       DataInputStream in = new DataInputStream(new FileInputStream(f));
       while ((line = in.readLine()) != null) 
       {
-        if (line.startsWith("READ") || line.startsWith("WRITE")) 
+        //System.out.println(line);
+        if (line.startsWith("READ") || line.startsWith("WRITE"))
         {
-          if (line.startsWith("READ")) 
+          if (line.startsWith("READ"))
           {
             command = "READ";
           }
-          if (line.startsWith("WRITE")) 
+          if (line.startsWith("WRITE"))
           {
             command = "WRITE";
           }
           StringTokenizer st = new StringTokenizer(line);
           tmp = st.nextToken();
           tmp = st.nextToken();
-          if (tmp.startsWith("random")) 
+
+          ////////////////////////////////////////////////
+
+          // Obteniendo las posiciones del archivo commands
+          // split de string
+          String[] spl = line.split(" ");
+
+          long pageSize = Long.parseLong("3fff", 16);
+          long myTemp = 0;
+          addr1 = Long.parseLong(spl[2], 16);
+          addr2 = Long.parseLong(spl[3], 16);
+
+          // comparando posición (addr debe ser menor a addr2)
+          if (addr1 > addr2){ // intercambio
+            myTemp = addr1;
+            addr1 = addr2;
+            addr2 = myTemp;
+          }
+
+          System.out.println(addr1+" address to "+addr2 + " address");
+          System.out.println("tamaño de pagina: "+pageSize);
+
+          // saber que paginas abarcan
+
+          long origin_page = 0;
+          long end_page = 0;
+
+          origin_page = addr1 / pageSize; // numero de pagina (1-31)
+          end_page = addr2 / pageSize;
+
+          // saber en que segmento se encuentra
+
+          // Segmentos
+          long origin_s1 = 0; // pagina inicial
+          long end_s1 = 8; // pagina final
+          long origin_s2 = 9;
+          long end_s2 = 13;
+          long origin_s3 = 14;
+          long end_s3 = 22;
+          long origin_s4 = 23;
+          long end_s4 = 28;
+          long origin_s5 = 29;
+          long end_s5 = 31;
+
+          System.out.println(
+              "S1: " + origin_s1 + "-" + end_s1 + "\n"+
+              "S2: " + origin_s2 + "-" + end_s2 + "\n"+
+              "S3: " + origin_s3 + "-" + end_s3 + "\n"+
+              "S4: " + origin_s4 + "-" + end_s4 + "\n"+
+              "S5: " + origin_s5 + "-" + end_s5 + "\n"
+          );
+
+          // saber en que segmento se localiza la selección de archivo commands
+          if((origin_page >= origin_s1 && origin_page < end_s1) && (end_page >= origin_s1 && end_page < end_s1)){
+            System.out.println("S1");
+          } else if ((origin_page >= origin_s2 && origin_page < end_s2) && (end_page >= origin_s2 && end_page < end_s2)) {
+            System.out.println("S2");
+          } else if ((origin_page >= origin_s3 && origin_page < end_s3) && (end_page >= origin_s3 && end_page < end_s3)) {
+            System.out.println("S3");
+          } else if ((origin_page >= origin_s4 && origin_page < end_s4) && (end_page >= origin_s4 && end_page < end_s4)) {
+            System.out.println("S4");
+          } else if ((origin_page >= origin_s5 && origin_page < end_s5) && (end_page >= origin_s5 && end_page < end_s5)) {
+            System.out.println("S5");
+          }
+          else {
+            System.out.println("Error, abarca dos o más segmentos a la vez");
+          }
+
+          System.out.println(origin_page + " page to " + end_page + " page");
+
+          if (tmp.startsWith("random"))
           {
             instructVector.addElement(new Instruction(command,Common.randomLong( address_limit )));
           } 
@@ -246,7 +320,7 @@ public class Kernel extends Thread
           { 
             if ( tmp.startsWith( "bin" ) )
             {
-              addr = Long.parseLong(st.nextToken(),2);             
+              addr = Long.parseLong(st.nextToken(),2);
             }
             else if ( tmp.startsWith( "oct" ) )
             {
@@ -409,7 +483,10 @@ public class Kernel extends Thread
 
     Instruction instruct = ( Instruction ) instructVector.elementAt( runs );
     controlPanel.instructionValueLabel.setText( instruct.inst );
+
+    // get address
     controlPanel.addressValueLabel.setText( Long.toString( instruct.addr , addressradix ) );
+
     getPage( Virtual2Physical.pageNum( instruct.addr , virtPageNum , block ) );
     if ( controlPanel.pageFaultValueLabel.getText() == "YES" ) 
     {
