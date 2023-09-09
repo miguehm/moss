@@ -1,3 +1,4 @@
+import java.beans.Introspector;
 import java.lang.Thread;
 import java.io.*;
 import java.util.*;
@@ -17,6 +18,7 @@ public class Kernel extends Thread
   private ControlPanel controlPanel ;
   private Vector memVector = new Vector();
   private Vector instructVector = new Vector();
+  private Vector segmentInstrVector = new Vector();
   private String status;
   private boolean doStdoutLog = false;
   private boolean doFileLog = false;
@@ -24,9 +26,6 @@ public class Kernel extends Thread
   public int runcycles;
   public long block = (int) Math.pow(2,12);
   public static byte addressradix = 10;
-
-  public long addr1 = 0;
-  public long addr2 = 0;
 
   public void init( String commands , String config )  
   {
@@ -226,7 +225,7 @@ public class Kernel extends Thread
     try 
     {
       DataInputStream in = new DataInputStream(new FileInputStream(f));
-      while ((line = in.readLine()) != null) 
+      while ((line = in.readLine()) != null)
       {
         //System.out.println(line);
         if (line.startsWith("READ") || line.startsWith("WRITE"))
@@ -242,75 +241,6 @@ public class Kernel extends Thread
           StringTokenizer st = new StringTokenizer(line);
           tmp = st.nextToken();
           tmp = st.nextToken();
-
-          ////////////////////////////////////////////////
-
-          // Obteniendo las posiciones del archivo commands
-          // split de string
-          String[] spl = line.split(" ");
-
-          long pageSize = Long.parseLong("3fff", 16);
-          long myTemp = 0;
-          addr1 = Long.parseLong(spl[2], 16);
-          addr2 = Long.parseLong(spl[3], 16);
-
-          // comparando posición (addr debe ser menor a addr2)
-          if (addr1 > addr2){ // intercambio
-            myTemp = addr1;
-            addr1 = addr2;
-            addr2 = myTemp;
-          }
-
-          System.out.println(addr1+" address to "+addr2 + " address");
-          System.out.println("tamaño de pagina: "+pageSize);
-
-          // saber que paginas abarcan
-
-          long origin_page = 0;
-          long end_page = 0;
-
-          origin_page = addr1 / pageSize; // numero de pagina (1-31)
-          end_page = addr2 / pageSize;
-
-          // saber en que segmento se encuentra
-
-          // Segmentos
-          long origin_s1 = 0; // pagina inicial
-          long end_s1 = 8; // pagina final
-          long origin_s2 = 9;
-          long end_s2 = 13;
-          long origin_s3 = 14;
-          long end_s3 = 22;
-          long origin_s4 = 23;
-          long end_s4 = 28;
-          long origin_s5 = 29;
-          long end_s5 = 31;
-
-          System.out.println(
-              "S1: " + origin_s1 + "-" + end_s1 + "\n"+
-              "S2: " + origin_s2 + "-" + end_s2 + "\n"+
-              "S3: " + origin_s3 + "-" + end_s3 + "\n"+
-              "S4: " + origin_s4 + "-" + end_s4 + "\n"+
-              "S5: " + origin_s5 + "-" + end_s5 + "\n"
-          );
-
-          // saber en que segmento se localiza la selección de archivo commands
-          if((origin_page >= origin_s1 && origin_page < end_s1) && (end_page >= origin_s1 && end_page < end_s1)){
-            System.out.println("S1");
-          } else if ((origin_page >= origin_s2 && origin_page < end_s2) && (end_page >= origin_s2 && end_page < end_s2)) {
-            System.out.println("S2");
-          } else if ((origin_page >= origin_s3 && origin_page < end_s3) && (end_page >= origin_s3 && end_page < end_s3)) {
-            System.out.println("S3");
-          } else if ((origin_page >= origin_s4 && origin_page < end_s4) && (end_page >= origin_s4 && end_page < end_s4)) {
-            System.out.println("S4");
-          } else if ((origin_page >= origin_s5 && origin_page < end_s5) && (end_page >= origin_s5 && end_page < end_s5)) {
-            System.out.println("S5");
-          }
-          else {
-            System.out.println("Error, abarca dos o más segmentos a la vez");
-          }
-
-          System.out.println(origin_page + " page to " + end_page + " page");
 
           if (tmp.startsWith("random"))
           {
@@ -413,7 +343,134 @@ public class Kernel extends Thread
         System.exit(-1);
       }
     }
-  } 
+  }
+
+  public void segmentInstReader(String commands){
+    System.out.println(commands);
+    File f = new File(commands);
+    String line = "";
+    String command = "";
+    //Vector instructions = new Vector();
+    long addr1 = 0;
+    long addr2 = 0;
+
+    try {
+      DataInputStream in = new DataInputStream(new FileInputStream(f));
+      while ((line = in.readLine()) != null) {
+        if (line.startsWith("READ") || line.startsWith("WRITE")){
+          if(line.startsWith("READ")){
+            command = "READ";
+          }
+
+          if(line.startsWith("WRITE")){
+            command = "WRITE";
+          }
+
+          ////////////////////////////////////////////////
+
+          // split de string
+          String[] spl = line.split(" ");
+
+          addr1 = Long.parseLong(spl[2], 16);
+          addr2 = Long.parseLong(spl[3], 16);
+
+          if (addr1 > addr2){ // intercambio
+            long myTemp = 0;
+            myTemp = addr1;
+            addr1 = addr2;
+            addr2 = myTemp;
+          }
+          segmentInstrVector.addElement(new Instruction(command, addr1, addr2));
+
+          //for(int i = 0; i<segmentInstrVector.size(); i++){
+            //Instruction ins = (Instruction) segmentInstrVector.elementAt(i);
+            //System.out.print("- " + ins.inst + " " + ins.addr1 + " " + ins.addr2 + "\n");
+          //}
+
+        }
+      }
+      in.close();
+    } catch (IOException err){
+      System.out.println("error");
+    }
+  }
+
+  public String getDirectionResult(Instruction instr){
+
+    long pageSize = Long.parseLong("3fff", 16);
+
+    System.out.println(Long.toHexString(pageSize));
+
+    // Segmentos
+    long origin_s1 = 0; // pagina inicial | 0
+    long end_s1 = Long.parseLong("23fff", 16); // pagina final | 8
+    long origin_s2 = Long.parseLong("24000", 16); // 9
+    long end_s2 = Long.parseLong("37fff", 16); // 13
+    long origin_s3 = Long.parseLong("38000", 16); // 14
+    long end_s3 = Long.parseLong("5bfff", 16); // 22
+    long origin_s4 = Long.parseLong("5c000", 16); //23
+    long end_s4 = Long.parseLong("73fff", 16); // 28
+    long origin_s5 = Long.parseLong("74000", 16); //29
+    long end_s5 = Long.parseLong("7ffff", 16); //31
+
+    // saber que paginas abarcan
+    long origin_page = 0;
+    long end_page = 0;
+
+    // Obteniendo las posiciones del archivo commands
+
+
+    // comparando posición (addr debe ser menor a addr2)
+
+    long addr1 = instr.addr1;
+    long addr2 = instr.addr2;
+
+    System.out.println(addr1+" address to "+addr2 + " address");
+    System.out.println("tamaño de pagina: "+pageSize);
+
+    //origin_page = addr1 / pageSize; // numero de pagina (1-31)
+    //end_page = addr2 / pageSize;
+    origin_page = addr1;
+    end_page = addr2;
+
+    // saber en que segmento se encuentra
+
+    System.out.println(
+            "S1: " + Long.toHexString(origin_s1) + "-" + Long.toHexString(end_s1) + "\n"+
+            "S2: " + Long.toHexString(origin_s2) + "-" + Long.toHexString(end_s2) + "\n"+
+            "S3: " + Long.toHexString(origin_s3) + "-" + Long.toHexString(end_s3) + "\n"+
+            "S4: " + Long.toHexString(origin_s4) + "-" + Long.toHexString(end_s4) + "\n"+
+            "S5: " + Long.toHexString(origin_s5) + "-" + Long.toHexString(end_s5) + "\n"
+    );
+
+    String result = "";
+    // saber en que segmento se localiza la selección de archivo commands
+    if((origin_page >= origin_s1 && origin_page <= end_s1) && (end_page >= origin_s1 && end_page <= end_s1)){
+      System.out.println("S1");
+      result += "S1 ";
+    } else if ((origin_page >= origin_s2 && origin_page <= end_s2) && (end_page >= origin_s2 && end_page <= end_s2)) {
+      System.out.println("S2");
+      result += "S2 ";
+    } else if ((origin_page >= origin_s3 && origin_page <= end_s3) && (end_page >= origin_s3 && end_page <= end_s3)) {
+      System.out.println("S3");
+      result += "S3 ";
+    } else if ((origin_page >= origin_s4 && origin_page <= end_s4) && (end_page >= origin_s4 && end_page <= end_s4)) {
+      System.out.println("S4");
+      result += "S4 ";
+    } else if ((origin_page >= origin_s5 && origin_page <= end_s5) && (end_page >= origin_s5 && end_page <= end_s5)) {
+      System.out.println("S5");
+      result += "S5 ";
+    } else {
+      System.out.println("Error, abarca dos o más segmentos a la vez");
+      result += "Error, abarca dos o más segmentos a la vez\n";
+      return result;
+    }
+
+    System.out.println(origin_page/pageSize + " to " + end_page/pageSize + " page");
+    result += "- "+ origin_page/pageSize + " to " + end_page/pageSize + " page \n";
+    //result += Long.toHexString(addr1) + " address to " + Long.toHexString(addr2);
+    return result;
+  }
 
   public void setControlPanel(ControlPanel newControlPanel) 
   {
@@ -564,6 +621,16 @@ public class Kernel extends Thread
         page.lastTouchTime = page.lastTouchTime + 10;
       }
     }
+
+    /////////////////////////////////////////////////////////
+
+    Instruction ins = (Instruction) segmentInstrVector.elementAt(runs);
+    controlPanel.segmentState.setText(this.getDirectionResult(ins));
+
+    System.out.print("- " + ins.inst + " " + Long.toHexString(ins.addr1) + " " + Long.toHexString(ins.addr2) + "\n");
+
+    /////////////////////////////////////////////////////////
+
     runs++;
     controlPanel.timeValueLabel.setText( Integer.toString( runs*10 ) + " (ns)" );
   }

@@ -57,10 +57,12 @@ public class MemoryManagement
     if ( args.length == 1 ) 
     {
       controlPanel.init( kernel , args[0] , null );
+      kernel.segmentInstReader(args[0]);
     }
     else
     {
       controlPanel.init( kernel , args[0] , args[1] );
+      kernel.segmentInstReader(args[0]);
     }
   }
 }

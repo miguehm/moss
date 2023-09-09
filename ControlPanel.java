@@ -86,6 +86,9 @@ public class ControlPanel extends Frame
   Label lastTouchTimeValueLabel = new Label("0" , Label.LEFT) ;
   Label lowValueLabel = new Label("0" , Label.LEFT) ;
   Label highValueLabel = new Label("0" , Label.LEFT) ;
+
+  Label segmentState = new Label("Segment", Label.LEFT);
+
   // physical column
   Label l0 = new Label(null, Label.CENTER);
   Label l1 = new Label(null, Label.CENTER);
@@ -973,6 +976,9 @@ public class ControlPanel extends Frame
     l63.setForeground( Color.red );
     l63.setFont( new Font( "Courier", 0, 10 ) );   
     add( l63 );
+
+    segmentState.reshape(285, 240+25, 240, 15);
+    add(segmentState);
 
     kernel.init( commands , config );
 
