@@ -1,6 +1,7 @@
 import java.beans.Introspector;
 import java.lang.Thread;
 import java.io.*;
+import java.sql.SQLOutput;
 import java.util.*;
 //import Page;
 
@@ -346,7 +347,6 @@ public class Kernel extends Thread
   }
 
   public void segmentInstReader(String commands){
-    System.out.println(commands);
     File f = new File(commands);
     String line = "";
     String command = "";
@@ -392,6 +392,10 @@ public class Kernel extends Thread
       in.close();
     } catch (IOException err){
       System.out.println("error");
+    } catch (NumberFormatException err){
+      System.out.println("Commands file has some errors");
+      System.out.println("Verify the syntax");
+      System.exit(-1);
     }
   }
 
