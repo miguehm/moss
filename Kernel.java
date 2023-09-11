@@ -28,7 +28,9 @@ public class Kernel extends Thread
   public long block = (int) Math.pow(2,12);
   public static byte addressradix = 10;
 
-  public void init( String commands , String config )  
+  long address_limit = (block * virtPageNum+1)-1;
+
+  public void init( String commands , String config )
   {
     File f = new File( commands );
     command_file = commands;
@@ -50,8 +52,7 @@ public class Kernel extends Thread
     long high = 0;
     long low = 0;
     long addr = 0;
-    long address_limit = (block * virtPageNum+1)-1;
-  
+
     if ( config != null )
     {
       f = new File ( config );
@@ -248,7 +249,8 @@ public class Kernel extends Thread
             instructVector.addElement(new Instruction(command,Common.randomLong( address_limit )));
           } 
           else 
-          { 
+          {
+
             if ( tmp.startsWith( "bin" ) )
             {
               addr = Long.parseLong(st.nextToken(),2);
@@ -366,14 +368,51 @@ public class Kernel extends Thread
             command = "WRITE";
           }
 
-          ////////////////////////////////////////////////
-
-          // split de string
           String[] spl = line.split(" ");
 
-          addr1 = Long.parseLong(spl[2], 16);
-          addr2 = Long.parseLong(spl[3], 16);
+          System.out.println(spl[1]);
+          // number type
 
+          int radix = 0;
+
+          if(spl[1].equals("hex")){
+            radix = 16;
+          } else if(spl[1].equals("bin")){
+            radix = 2;
+          } else if(spl[1].equals("oct")){
+            radix = 8;
+          } else {
+            if(spl[1].equals("random")){
+              addr1 = Common.randomLong( address_limit );
+            } else {
+              addr1 = Long.parseLong(spl[1]);
+            }
+
+            if(spl[2].equals("random")){
+              addr2 = Common.randomLong( address_limit );
+            } else {
+              addr2 = Long.parseLong(spl[2]);
+            }
+          }
+
+          if(spl[2].equals("random")) {
+            addr1 = Common.randomLong(address_limit);
+          } else {
+            addr1 = Long.parseLong(spl[2], radix);
+          }
+
+          if(spl[3].equals("random")){
+            addr2 = Common.randomLong(address_limit);
+          } else {
+            addr2 = Long.parseLong(spl[3], radix);
+          }
+
+          if(addr1 > address_limit || addr2 > address_limit){
+            System.out.println("Please make sure the addresses does not overcome the limit ("+address_limit+")");
+            System.exit(-1);
+          }
+
+          // split de string
           if (addr1 > addr2){ // intercambio
             long myTemp = 0;
             myTemp = addr1;
@@ -392,11 +431,12 @@ public class Kernel extends Thread
       in.close();
     } catch (IOException err){
       System.out.println("error");
-    } catch (NumberFormatException err){
+    } /*catch (NumberFormatException err){
+      /System.out.println(err);
       System.out.println("Commands file has some errors");
       System.out.println("Verify the syntax");
       System.exit(-1);
-    }
+    }*/
   }
 
   public String getDirectionResult(Instruction instr){
