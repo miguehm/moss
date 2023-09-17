@@ -487,10 +487,10 @@ public class Kernel extends Thread
       return result;
     }
 
-    long fromPage = origin_page/pageSize+1;
+    long fromPage = (origin_page/pageSize==0)?0:(origin_page/pageSize)+1;
     long toPage = end_page/pageSize+1;
     System.out.println(fromPage + " to " + toPage + " page");
-    result += "- "+ origin_page/pageSize + " to " + end_page/pageSize + " page \n";
+    result += "- "+ fromPage + " to " + toPage + " page \n";
     //result += Long.toHexString(addr1) + " address to " + Long.toHexString(addr2);
     return result;
   }
