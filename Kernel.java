@@ -1,9 +1,8 @@
 import java.beans.Introspector;
 import java.lang.Thread;
 import java.io.*;
-import java.sql.SQLOutput;
-import java.util.*;
 //import Page;
+import java.util.*;
 
 public class Kernel extends Thread
 {
@@ -13,7 +12,7 @@ public class Kernel extends Thread
 
   private String output = null;
   private static final String lineSeparator = 
-    System.getProperty("line.separator");
+  System.getProperty("line.separator");
   private String command_file;
   private String config_file;
   private ControlPanel controlPanel ;
@@ -28,10 +27,14 @@ public class Kernel extends Thread
   public long block = (int) Math.pow(2,12);
   public static byte addressradix = 10;
 
-  long address_limit = (block * virtPageNum+1)-1;
+  private Map<Integer, Long> asigSemgmen = new HashMap<>();
+  /*La usaremos para almacenar y e esta misma forma recupperar valores */
+  private Map<Integer, Long> segAsig = new HashMap<>();
 
-  public void init( String commands , String config )
+
+  public void init( String commands , String config )  
   {
+    
     File f = new File( commands );
     command_file = commands;
     config_file = config;
@@ -52,7 +55,8 @@ public class Kernel extends Thread
     long high = 0;
     long low = 0;
     long addr = 0;
-
+    long address_limit = (block * virtPageNum+1)-1;
+  
     if ( config != null )
     {
       f = new File ( config );
@@ -249,8 +253,7 @@ public class Kernel extends Thread
             instructVector.addElement(new Instruction(command,Common.randomLong( address_limit )));
           } 
           else 
-          {
-
+          { 
             if ( tmp.startsWith( "bin" ) )
             {
               addr = Long.parseLong(st.nextToken(),2);
@@ -348,7 +351,10 @@ public class Kernel extends Thread
     }
   }
 
+  /*Este metodo se encarga de recibir las cadenas del archivo commands */
+
   public void segmentInstReader(String commands){
+    System.out.println(commands);//Nos muestr contenido
     File f = new File(commands);
     String line = "";
     String command = "";
@@ -357,8 +363,11 @@ public class Kernel extends Thread
     long addr2 = 0;
 
     try {
+      /*Se lee el archivo f el cual fue creado anteriormente */
       DataInputStream in = new DataInputStream(new FileInputStream(f));
+      /*Lee linea por linea del archivo  */
       while ((line = in.readLine()) != null) {
+        /*Verifica como es que comienza la linea y le asigana un valor  */
         if (line.startsWith("READ") || line.startsWith("WRITE")){
           if(line.startsWith("READ")){
             command = "READ";
@@ -368,52 +377,18 @@ public class Kernel extends Thread
             command = "WRITE";
           }
 
+          ////////////////////////////////////////////////
+          /*Divide y almacena las partes en en arreglo */
+          // split de string
           String[] spl = line.split(" ");
 
-          System.out.println(spl[1]);
-          // number type
+          /*Convierte las cadenas hexa en long y asi asignarlo a las rspectivas
+           variables para seguir usandolos de forma hexa */
+          addr1 = Long.parseLong(spl[2], 16);
+          addr2 = Long.parseLong(spl[3], 16);
 
-          int radix = 0;
-
-          if(spl[1].equals("hex")){
-            radix = 16;
-          } else if(spl[1].equals("bin")){
-            radix = 2;
-          } else if(spl[1].equals("oct")){
-            radix = 8;
-          } else {
-            if(spl[1].equals("random")){
-              addr1 = Common.randomLong( address_limit );
-            } else {
-              addr1 = Long.parseLong(spl[1]);
-            }
-
-            if(spl[2].equals("random")){
-              addr2 = Common.randomLong( address_limit );
-            } else {
-              addr2 = Long.parseLong(spl[2]);
-            }
-          }
-
-          if(spl[2].equals("random")) {
-            addr1 = Common.randomLong(address_limit);
-          } else {
-            addr1 = Long.parseLong(spl[2], radix);
-          }
-
-          if(spl[3].equals("random")){
-            addr2 = Common.randomLong(address_limit);
-          } else {
-            addr2 = Long.parseLong(spl[3], radix);
-          }
-
-          if(addr1 > address_limit || addr2 > address_limit){
-            System.out.println("Please make sure the addresses does not overcome the limit ("+address_limit+")");
-            System.exit(-1);
-          }
-
-          // split de string
-          if (addr1 > addr2){ // intercambio
+          /*Se comparan */
+          if (addr1 > addr2){ // intercambio valores 
             long myTemp = 0;
             myTemp = addr1;
             addr1 = addr2;
@@ -421,6 +396,9 @@ public class Kernel extends Thread
           }
           segmentInstrVector.addElement(new Instruction(command, addr1, addr2));
 
+          Instruction instr = new Instruction(command, addr1, addr2);
+
+          
           //for(int i = 0; i<segmentInstrVector.size(); i++){
             //Instruction ins = (Instruction) segmentInstrVector.elementAt(i);
             //System.out.print("- " + ins.inst + " " + ins.addr1 + " " + ins.addr2 + "\n");
@@ -431,20 +409,19 @@ public class Kernel extends Thread
       in.close();
     } catch (IOException err){
       System.out.println("error");
-    } /*catch (NumberFormatException err){
-      /System.out.println(err);
-      System.out.println("Commands file has some errors");
-      System.out.println("Verify the syntax");
-      System.exit(-1);
-    }*/
+    }
   }
-
+  
+  /*Recibe instruction, aqui se determinara en que segmento se encuentra 
+   el rango de direcciones*/
   public String getDirectionResult(Instruction instr){
 
+    /*16383 Valor en dec, representa tam de una hoja  */
     long pageSize = Long.parseLong("3fff", 16);
 
     System.out.println(Long.toHexString(pageSize));
 
+    /*Aqui se define el limite de los segmmentos  */
     // Segmentos
     long origin_s1 = 0; // pagina inicial | 0
     long end_s1 = Long.parseLong("23fff", 16); // pagina final | 8
@@ -465,7 +442,7 @@ public class Kernel extends Thread
 
 
     // comparando posición (addr debe ser menor a addr2)
-
+    /*Obtiene las direcciones y se imprime el tamaño del seg */
     long addr1 = instr.addr1;
     long addr2 = instr.addr2;
 
@@ -510,11 +487,204 @@ public class Kernel extends Thread
       return result;
     }
 
-    System.out.println(origin_page/pageSize + " to " + end_page/pageSize + " page");
+    long fromPage = origin_page/pageSize+1;
+    long toPage = end_page/pageSize+1;
+    System.out.println(fromPage + " to " + toPage + " page");
     result += "- "+ origin_page/pageSize + " to " + end_page/pageSize + " page \n";
     //result += Long.toHexString(addr1) + " address to " + Long.toHexString(addr2);
     return result;
   }
+
+  /*BEST-FIT */
+  /* */
+  public String bestFit(Instruction instr) {
+     long[] segmentInit;
+     long[] segmentEnd;
+
+    /*Aqui se definen las direcciones de incio -fin de los segmentos correspondientes*/
+    // Límites de los segmentos
+    segmentInit = new long[] {
+      Long.parseLong("0",16),// S1
+      Long.parseLong("24000", 16),  // S2
+      Long.parseLong("38000", 16),  // S3
+      Long.parseLong("5c000", 16),  // S4
+      Long.parseLong("74000", 16)   // S5
+    };
+
+    segmentEnd = new long[] {
+      Long.parseLong("23fff", 16),  // S1
+      Long.parseLong("37fff", 16),  // S2
+      Long.parseLong("5bfff", 16),  // S3
+      Long.parseLong("73fff", 16),  // S4
+      Long.parseLong("7ffff", 16)   // S5
+    };
+
+    
+
+    // Direcciones de la instrucción
+    long addr1 = instr.addr1;
+    long addr2 = instr.addr2;
+
+    // Calcula el tamaño de la instrucción
+    /*Se btiene la diferencia entre estas 
+     agrega 1 para que se de la ubiccion final de esta
+     */
+    long instrSize = addr2 - addr1 + 1;
+    
+   // inicia el índice del segmento como -1
+   // este indica que no se a encontradp  algun segmento mejotr ajuste 
+    int bestFitInd = -1;
+
+    // Encuentra el mejor segmento que se ajuste al tamaño de la instrucción
+    /*Aqui itera los seg disponibles, donde comparara tam de la instruc con el tam
+     * de cada seg 
+     */
+    for (int i = 0; i < segmentInit.length; i++) {
+        long segmentSize = segmentEnd[i] - segmentInit[i] + 1;
+
+        // Si la instrucción cabe en el segmento y es dodne mejor se  ajusta hasta ahora
+        //actualiza con el ind del segmento actu
+        if (instrSize <= segmentSize && (bestFitInd == -1 || segmentSize < (segmentEnd[bestFitInd] - segmentInit[bestFitInd] + 1))) {
+            bestFitInd = i;
+        }
+    }
+
+    // Si se encontró un mejor segmento, devuelve su nombre (S1, s2, s3, s4, s5.)
+    if (bestFitInd != -1) { /* Si es dif de -1 */
+      /*Si encuenra seg adecuado regresa el nume del seg */
+        return "Best-Fit: S" + (bestFitInd + 1);
+    } else {
+      /*No encuentra seg adecuado */
+        return "Best-Fit: No se encontró un segmento adecuado para la instrucción.";
+    }
+    
+  }
+  
+  /*Escanea la memoria desde el comienzo y elige el primer bloque 
+  disponible que sea lo suficientemente grande. */
+  public String firstFit(Instruction instr) {
+        // Límites de los segmentos
+    long[] segmentInit = {
+      Long.parseLong("0", 16),     // S1
+      Long.parseLong("24000", 16), // S2
+      Long.parseLong("38000", 16), // S3
+      Long.parseLong("5c000", 16), // S4
+      Long.parseLong("74000", 16)  // S5
+    };
+
+    long[] segmentEnd = {
+      Long.parseLong("23fff", 16), // S1
+      Long.parseLong("37fff", 16), // S2
+      Long.parseLong("5bfff", 16), // S3
+      Long.parseLong("73fff", 16), // S4
+      Long.parseLong("7ffff", 16)  // S5
+    };
+
+    // Direcciones de la instrucción
+    long addr1 = instr.addr1;
+    long addr2 = instr.addr2;
+
+    // Calcula el tamaño de la instrucción
+    /*Se btiene la diferencia entre estas 
+    agrega 1 para que se de la ubiccion final de esta
+    */
+    long instrSize = addr2 - addr1 + 1;
+
+    int firstIndice = -1; // Índice del segmento que se ajusta primero
+
+    // Busca el primer segmento adecuado desde el comienzo
+    /*itera atraves de segmentis definidos y se verfica que cada segemntio este 
+    * ocupado (comptobando en el mapeo ) asigancionesen los segmen
+    */
+    for (int i = 0; i < segmentInit.length; i++) {
+      long segmentStart = segmentInit[i];
+      long segmentEnds = segmentEnd[i];
+
+      // Verifica si el segmento está ocupado
+      /*Idenficica por ind el segmenti->si esta registrado en el map 
+      * revisa si no ha sido asigando
+      * Revisa si entra en el segmento sin pasarse de su limite 
+      */
+      /*Si es menos igual al tamaño del segemnto(diferencis entre limites ) */
+      if (!asigSemgmen.containsKey(i) && instrSize <= (segmentEnds - segmentStart + 1)) {
+        firstIndice = i;
+        /*agrega un elemento al map, i=indi, calcula la direccion de la aigamcion
+        * del seg*/
+        asigSemgmen.put(i, segmentStart + instrSize); // Registra la asignación del segmento
+        break; // Se encontró el primer segmento adecuado, salir del bucle
+      }
+    }
+
+    if (firstIndice != -1) {
+        return "First-Fit: S" + (firstIndice + 1);
+    } else {
+        return "First-Fit: No se encontró un segmento adecuado para la instrucción.";
+    }
+  }
+
+  /*Next-Fit Comienza a escanear la memoria desde la localización del último bloque de memoria
+  alojado y elige el siguiente bloque disponible lo suficientemente grande.*/
+  public String nextFit(Instruction instr) {
+    /*Se encarga del ultimo segm de memoria asignada */
+    int ultSegAsig = -1;
+    // Límites de los segmentos
+
+    long[] segmentInit = {
+        Long.parseLong("0", 16),     // S1
+        Long.parseLong("24000", 16), // S2
+        Long.parseLong("38000", 16), // S3
+        Long.parseLong("5c000", 16), // S4
+        Long.parseLong("74000", 16)  // S5
+    };
+
+    long[] segmentEnd = {
+        Long.parseLong("23fff", 16), // S1
+        Long.parseLong("37fff", 16), // S2
+        Long.parseLong("5bfff", 16), // S3
+        Long.parseLong("73fff", 16), // S4
+        Long.parseLong("7ffff", 16)  // S5
+    };
+
+    // Direcciones de la instrucción
+    long addr1 = instr.addr1;
+    long addr2 = instr.addr2;
+
+    // Calcula el tamaño de la instrucción
+    long instrSize = addr2 - addr1 + 1;
+
+    int nextfitSegmIn = -1; // Índice  seg, el cual almacena idicara si es adecuaso
+
+    // Comienza a escanear el último bloque asignado
+    /*?= este sirve como evaluador de una condicion, si  es vdd
+    entonces primero revisa que no tiene asigando ningun segmento  == -1 y guarda 0 en indi
+    Si es falso inicia la segundsa parte, el cual indica que ya tiene asigandoun segmento*/
+    int indI = (ultSegAsig == -1) ? 0 : (ultSegAsig + 1);
+
+    // Busca el siguiente segmento adecuado
+    /*el ciclo recorre los segmentos */
+    for (int i = indI; i < segmentInit.length; i++) {
+        long segmentStart = segmentInit[i];
+        long segmentEnds = segmentEnd[i];
+
+        /*  Verifica si el segmento no está ocupado
+        Si cumole dicha condicio, el segmento se marca como asignado y
+        e actualiza el indicide de este segmen*/
+        if (!segAsig.containsKey(i) && instrSize <= (segmentEnds - segmentStart + 1)) {
+            nextfitSegmIn = i;
+            segAsig.put(i, segmentStart + instrSize); // Registra la asignación del segmento
+            ultSegAsig = i; // Actualiza el último segmento asignado
+            break; // Se encontró el siguiente segmento adecuado, salir del bucle
+        }
+    }
+    /*Si es diferente de -1 = segmento adecuato  devuelve el segemnto correspondiemte   */
+    if (nextfitSegmIn != -1) {
+        return "Next-Fit: S" + (nextfitSegmIn + 1);
+    } else {
+        return "Next-Fit: No se encontró un segmento adecuado para la instrucción.";
+    }
+  }
+
+
 
   public void setControlPanel(ControlPanel newControlPanel) 
   {
@@ -671,6 +841,16 @@ public class Kernel extends Thread
     Instruction ins = (Instruction) segmentInstrVector.elementAt(runs);
     controlPanel.segmentState.setText(this.getDirectionResult(ins));
 
+    // Llama a la función bestFit y muestra el resultado
+    String result = bestFit(ins);
+    System.out.println(result);
+    /*Llama a la funcion First-Fit */
+    result = firstFit(ins);
+    System.out.println(result);
+    /*La funcionllama a next-fit , y muestra los resultados optenidos */
+    result = nextFit(ins);
+    System.out.println(result);
+
     System.out.print("- " + ins.inst + " " + Long.toHexString(ins.addr1) + " " + Long.toHexString(ins.addr2) + "\n");
 
     /////////////////////////////////////////////////////////
@@ -695,6 +875,7 @@ public class Kernel extends Thread
     controlPanel.lastTouchTimeValueLabel.setText( "0" ) ;
     controlPanel.lowValueLabel.setText( "0" ) ;
     controlPanel.highValueLabel.setText( "0" ) ;
+     controlPanel.segmentState.setText("              0");
     init( command_file , config_file );
   }
 }
