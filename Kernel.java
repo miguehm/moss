@@ -487,8 +487,6 @@ public class Kernel extends Thread
       return result;
     }
 
-    System.out.print("end/pagesize");
-    System.out.println(end_page);
     long fromPage = (long) Math.floor(origin_page / (pageSize+1));
     long toPage = (long) Math.floor(end_page/(pageSize+1));
     System.out.println(fromPage + " to " + toPage + " page");
