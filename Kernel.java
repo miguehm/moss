@@ -573,6 +573,15 @@ public class Kernel extends Thread
 
   
   public String firstFit(Instruction instr) {
+    // primer recorrido para rellenar
+    for (Segment segment : this.segments) {
+      if(instr.getSize() <= segment.getSize() && !segment.touched){
+        return segment.setActualInstruction(instr);
+      }
+    }
+
+    // segundo recorrido si ya están llenos los segmentos o la instr no cabe
+    // en los no llenos
     for (Segment segment : this.segments) {
       if(instr.getSize() <= segment.getSize()){
         return segment.setActualInstruction(instr);

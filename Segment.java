@@ -6,12 +6,14 @@ public class Segment{
     private long size;
     private Instruction actualInstruction;
     private String name;
+    public boolean touched;
 
     public Segment(String origin, String end, String name){
         this.origin = Long.parseLong(origin, 16);
         this.end = Long.parseLong(end, 16);
         this.name = name;
         this.size = this.end - this.origin;
+        this.touched = false;
     }
 
     public long getOrigin() {
@@ -47,6 +49,7 @@ public class Segment{
                 "Asignado a "+Long.toHexString(newInstruction.addr1)+
                 " - "+
                 Long.toHexString(newInstruction.addr2);
+            this.touched = true;
         } else {
             message = this.name+
                 " | "+
